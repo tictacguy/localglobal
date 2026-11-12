@@ -33,7 +33,7 @@ export function BottomNav({ active }: { active: Tab }) {
         <Icon name="compass" size={27} color="#fff" />
       </button>
       <button className={`tab ${active === "messaggi" ? "active" : ""}`} onClick={() => nav("/messaggi")} aria-label="Messaggi">
-        <Icon name="chat" size={23} />
+        <Icon name="messages" size={23} />
         <span className="tab-dot" />
       </button>
       <button className={`tab ${active === "profilo" ? "active" : ""}`} onClick={() => nav("/profilo")} aria-label="Profilo">

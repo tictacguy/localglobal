@@ -1,20 +1,18 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Icon } from "../Icon";
 import { api } from "../api";
 import type { User } from "../types";
 
-function Row({ icon, title, sub, onClick }: { icon: string; title: string; sub?: string; onClick: () => void }) {
+// Matches the Figma "Profilo" mock exactly: white rounded panels with a bold
+// header and light-gray icon · label · chevron rows (no dividers).
+function Row({ icon, label, onClick, danger }: { icon: string; label: string; onClick?: () => void; danger?: boolean }) {
   return (
-    <div className="set-row" onClick={onClick}>
-      <span className="si">
-        <Icon name={icon} size={20} />
-      </span>
-      <span className="sl">
-        <span className="st">{title}</span>
-        {sub ? <span className="ss">{sub}</span> : null}
-      </span>
-      <Icon name="chevRight" size={18} color="var(--gray-3)" />
+    <div className="row-item" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
+      <Icon name={icon} size={20} className="ri-icon" color={danger ? "var(--red)" : undefined} />
+      <span className="ri-label" style={danger ? { color: "var(--red)" } : undefined}>{label}</span>
+      <Icon name="chevRight" size={18} className="chev" color="var(--gray-3)" />
     </div>
   );
 }
@@ -22,6 +20,7 @@ function Row({ icon, title, sub, onClick }: { icon: string; title: string; sub?:
 export function Settings() {
   const nav = useNavigate();
   const { user, setUser, logout } = useAuth();
+  const [notif, setNotif] = useState(true);
   if (!user) return null;
   const isLocal = user.activeMode === "LOCAL";
 
@@ -41,32 +40,37 @@ export function Settings() {
         <div style={{ width: 44 }} />
       </div>
 
-      <div className="set-group">
-        <div className="gl">Account</div>
-        <div className="set-card">
-          <Row icon="person" title="Informazioni personali" sub="Nome, contatti, città" onClick={() => nav("/profilo/dati")} />
-          <Row icon="card" title="Metodo di pagamento" onClick={() => nav("/impostazioni/pagamenti")} />
-          <Row icon="pie" title="Insights e Analytics" onClick={() => nav("/impostazioni/insights")} />
-          <Row icon="tagPrice" title="Promozioni" onClick={() => nav("/impostazioni/promozioni")} />
+      <div className="panel">
+        <h4>Account</h4>
+        <Row icon="person" label="Informazioni personali" onClick={() => nav("/profilo/dati")} />
+        <Row icon="pie" label="Insights e Analytics" onClick={() => nav("/impostazioni/insights")} />
+        <Row icon="tagPrice" label="Promozioni" onClick={() => nav("/impostazioni/promozioni")} />
+        <Row icon="card" label="Metodo di pagamento" onClick={() => nav("/impostazioni/pagamenti")} />
+      </div>
+
+      <div className="panel tight">
+        <h4>Notifiche</h4>
+        <div className="row-item">
+          <Icon name="bell" size={20} className="ri-icon" />
+          <span className="ri-label">Attivate</span>
+          <span className={`toggle ${notif ? "on" : ""}`} onClick={() => setNotif((v) => !v)}>
+            <span className="knob" />
+          </span>
         </div>
       </div>
 
-      <div className="set-group">
-        <div className="gl">Preferenze</div>
-        <div className="set-card">
-          <Row icon="bell" title="Notifiche" onClick={() => nav("/impostazioni/notifiche")} />
-          <Row icon="shield" title="Privacy e Policy" onClick={() => nav("/impostazioni/privacy")} />
-          <Row icon="accessibility" title="Accessibilità" onClick={() => nav("/impostazioni/accessibilita")} />
-        </div>
+      <div className="panel">
+        <h4>Preferenze</h4>
+        <Row icon="bell" label="Gestisci notifiche" onClick={() => nav("/impostazioni/notifiche")} />
+        <Row icon="shield" label="Privacy e Policy" onClick={() => nav("/impostazioni/privacy")} />
+        <Row icon="accessibility" label="Accessibilità" onClick={() => nav("/impostazioni/accessibilita")} />
       </div>
 
-      <div className="set-group">
-        <div className="gl">Supporto</div>
-        <div className="set-card">
-          <Row icon="mail" title="Contattaci" onClick={() => nav("/impostazioni/contatti")} />
-          <Row icon={isLocal ? "person" : "globeLine"} title={`Passa a ${isLocal ? "Tourist" : "Local"}`} sub={isLocal ? "Torna a esplorare" : "Crea le tue esperienze"} onClick={switchMode} />
-          <Row icon="login" title="Esci" onClick={() => logout().then(() => nav("/login", { replace: true }))} />
-        </div>
+      <div className="panel">
+        <h4>Altro</h4>
+        <Row icon="mail" label="Contattaci" onClick={() => nav("/impostazioni/contatti")} />
+        <Row icon={isLocal ? "person" : "globeLine"} label={`Passa a ${isLocal ? "Tourist" : "Local"}`} onClick={switchMode} />
+        <Row icon="login" label="Esci" danger onClick={() => logout().then(() => nav("/login", { replace: true }))} />
       </div>
       <div style={{ height: 24 }} />
     </div>

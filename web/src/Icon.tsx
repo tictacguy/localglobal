@@ -83,6 +83,14 @@ export function Icon({
       </>
     ),
     chat: <path d="M5 5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-4 3.5V7a2 2 0 0 1 2-2Z" />,
+    messages: (
+      <>
+        <path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-8l-4 3v-3H5A1.5 1.5 0 0 1 3.5 14V7A1.5 1.5 0 0 1 5 5.5Z" />
+        <circle cx="8.5" cy="10.5" r="1.05" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="10.5" r="1.05" fill="currentColor" stroke="none" />
+        <circle cx="15.5" cy="10.5" r="1.05" fill="currentColor" stroke="none" />
+      </>
+    ),
     mail: (
       <>
         <rect x="3.5" y="6" width="17" height="12" rx="2.5" />

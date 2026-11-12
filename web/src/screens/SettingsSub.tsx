@@ -33,13 +33,9 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 
 function ToggleRow({ icon, label, on, onToggle }: { icon: string; label: string; on: boolean; onToggle: () => void }) {
   return (
-    <div className="set-row" style={{ cursor: "default" }}>
-      <span className="si">
-        <Icon name={icon} size={20} />
-      </span>
-      <span className="sl">
-        <span className="st">{label}</span>
-      </span>
+    <div className="row-item">
+      <Icon name={icon} size={20} className="ri-icon" />
+      <span className="ri-label">{label}</span>
       <Toggle on={on} onClick={onToggle} />
     </div>
   );
@@ -63,7 +59,7 @@ export function Notifiche() {
   };
   return (
     <Sub title="Notifiche">
-      <div className="set-card">
+      <div className="panel tight">
         <ToggleRow icon="bell" label="Notifiche push" on={p.push} onToggle={() => set("push")} />
         <ToggleRow icon="mail" label="Email" on={p.email} onToggle={() => set("email")} />
         <ToggleRow icon="heart" label="Nuovi match" on={p.match} onToggle={() => set("match")} />
@@ -92,7 +88,7 @@ export function Privacy() {
   };
   return (
     <Sub title="Privacy e Policy">
-      <div className="set-card">
+      <div className="panel tight">
         <ToggleRow icon="person" label="Profilo pubblico" on={p.publicProfile} onToggle={() => set("publicProfile")} />
         <ToggleRow icon="pin" label="Mostra la mia città" on={p.showLocation} onToggle={() => set("showLocation")} />
         <ToggleRow icon="pie" label="Condividi attività" on={p.showActivity} onToggle={() => set("showActivity")} />
@@ -115,7 +111,7 @@ export function Accessibilita() {
   };
   return (
     <Sub title="Accessibilità">
-      <div className="set-card">
+      <div className="panel tight">
         <ToggleRow icon="accessibility" label="Testo più grande" on={p.textLarge} onToggle={() => set("textLarge")} />
         <ToggleRow icon="sparkles" label="Riduci movimento" on={p.reduceMotion} onToggle={() => set("reduceMotion")} />
         <ToggleRow icon="image" label="Alto contrasto" on={p.highContrast} onToggle={() => set("highContrast")} />
