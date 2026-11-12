@@ -48,8 +48,13 @@ services:
     networks:
       - lg
 
+  # Caddy provides standalone automatic HTTPS (binds 80/443). Enable it only on a
+  # dedicated host where those ports are free:  docker compose --profile standalone up -d
+  # Behind an existing reverse proxy (e.g. host nginx), leave it off — the default
+  # `docker compose up -d` starts only db/api/web, exposed on exotic localhost ports.
   caddy:
     image: caddy:2.8-alpine
+    profiles: ["standalone"]
     restart: unless-stopped
     depends_on:
       - web

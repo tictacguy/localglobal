@@ -62,6 +62,23 @@ docker compose run --rm api npm run seed   # una tantum, dati demo
 Caddy ottiene automaticamente il certificato Let's Encrypt al primo avvio: il sito
 è raggiungibile in HTTPS su `https://localglobal.it`.
 
+### Deploy dietro un reverse proxy esistente (host nginx)
+
+Su un server dove le porte 80/443 sono già occupate da un nginx di sistema (setup
+multi-app), **non** avviare Caddy. Il comando `docker compose up -d` di default
+avvia solo `db`/`api`/`web`, esposti su porte localhost "esotiche"
+(`127.0.0.1:47880` web, `127.0.0.1:47891` api). Poi:
+
+```bash
+# vhost nginx (template versionato in deploy/)
+sudo cp deploy/localglobal.nginx.conf /etc/nginx/conf.d/localglobal.conf
+# certificato via certbot (webroot)
+sudo certbot certonly --webroot -w /var/www/certbot -d localglobal.it --non-interactive --agree-tos
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Caddy resta disponibile per un host dedicato con `docker compose --profile standalone up -d`.
+
 ### Porte
 
 | Servizio | Porta interna | Pubblicazione host            |
