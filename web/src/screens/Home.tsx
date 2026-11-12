@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../api";
+import { useAuth } from "../auth";
 import { BottomNav, ExperienceCard, StatusBar } from "../components";
 import { Icon } from "../Icon";
 import type { Experience } from "../types";
 
 export function Home() {
+  const nav = useNavigate();
+  const { user } = useAuth();
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -106,6 +110,11 @@ export function Home() {
           )}
         </div>
       </div>
+      {user?.activeMode === "LOCAL" ? (
+        <button className="fab-create" onClick={() => nav("/crea-esperienza")} aria-label="Crea esperienza">
+          <Icon name="plus" size={26} color="#fff" />
+        </button>
+      ) : null}
       <BottomNav active="home" />
     </>
   );

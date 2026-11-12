@@ -3,30 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Icon, Stars, Verified } from "./Icon";
 import type { Experience, User } from "./types";
 
+// The iPhone-style status bar was removed. This is just a small safe-area spacer
+// so content doesn't hug the top edge (respects the notch on real devices).
 export function StatusBar() {
-  return (
-    <div className="statusbar">
-      <span className="time">9:41</span>
-      <span className="glyphs">
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="#1b1b1b">
-          <rect x="0" y="7" width="3" height="5" rx="1" />
-          <rect x="5" y="4.5" width="3" height="7.5" rx="1" />
-          <rect x="10" y="2" width="3" height="10" rx="1" />
-          <rect x="15" y="0" width="3" height="12" rx="1" opacity="0.35" />
-        </svg>
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="#1b1b1b">
-          <path d="M8.5 2C11.8 2 14.7 3.3 16.8 5.4l-1.4 1.4A10 10 0 0 0 8.5 4a10 10 0 0 0-6.9 2.8L.2 5.4A12 12 0 0 1 8.5 2Z" />
-          <path d="M8.5 6.5c1.8 0 3.4.7 4.6 1.9l-1.5 1.5a4.4 4.4 0 0 0-6.2 0L3.9 8.4A6.4 6.4 0 0 1 8.5 6.5Z" />
-          <circle cx="8.5" cy="11" r="1.1" />
-        </svg>
-        <svg width="26" height="13" viewBox="0 0 26 13">
-          <rect x="0.5" y="0.5" width="21" height="12" rx="3.5" fill="none" stroke="#1b1b1b" opacity="0.4" />
-          <rect x="2" y="2" width="18" height="9" rx="2" fill="#1b1b1b" />
-          <rect x="23" y="4" width="2" height="5" rx="1" fill="#1b1b1b" opacity="0.5" />
-        </svg>
-      </span>
-    </div>
-  );
+  return <div className="safe-top" />;
 }
 
 export function avatarSrc(u?: Partial<User> | null): string {
@@ -35,26 +15,30 @@ export function avatarSrc(u?: Partial<User> | null): string {
   return `https://ui-avatars.com/api/?name=${name}&background=F7F8F8&color=1B1B1B&bold=true`;
 }
 
-type Tab = "home" | "passaporto" | "esplora" | "messaggi" | "profilo";
+type Tab = "home" | "schedule" | "esplora" | "messaggi" | "profilo" | "passaporto";
 
 export function BottomNav({ active }: { active: Tab }) {
   const nav = useNavigate();
   return (
     <nav className="bottomnav">
-      <button className={`tab ${active === "home" ? "active" : ""}`} onClick={() => nav("/home")}>
-        <Icon name="home" size={24} />
+      <button className={`tab ${active === "home" ? "active" : ""}`} onClick={() => nav("/home")} aria-label="Home">
+        <Icon name="home" size={23} fill={active === "home" ? "currentColor" : "none"} />
+        <span className="tab-dot" />
       </button>
-      <button className={`tab ${active === "passaporto" ? "active" : ""}`} onClick={() => nav("/passaporto")}>
-        <Icon name="book" size={24} />
+      <button className={`tab ${active === "schedule" ? "active" : ""}`} onClick={() => nav("/schedule")} aria-label="Schedule">
+        <Icon name="calendar" size={23} />
+        <span className="tab-dot" />
       </button>
-      <button className={`fab ${active === "esplora" ? "muted" : ""}`} onClick={() => nav("/esplora")}>
-        <Icon name="globe" size={26} color="#fff" />
+      <button className={`fab ${active === "esplora" ? "active" : ""}`} onClick={() => nav("/esplora")} aria-label="Match">
+        <Icon name="compass" size={27} color="#fff" />
       </button>
-      <button className={`tab ${active === "messaggi" ? "active" : ""}`} onClick={() => nav("/messaggi")}>
-        <Icon name="chat" size={24} />
+      <button className={`tab ${active === "messaggi" ? "active" : ""}`} onClick={() => nav("/messaggi")} aria-label="Messaggi">
+        <Icon name="chat" size={23} />
+        <span className="tab-dot" />
       </button>
-      <button className={`tab ${active === "profilo" ? "active" : ""}`} onClick={() => nav("/profilo")}>
-        <Icon name="person" size={24} />
+      <button className={`tab ${active === "profilo" ? "active" : ""}`} onClick={() => nav("/profilo")} aria-label="Profilo">
+        <Icon name="person" size={23} />
+        <span className="tab-dot" />
       </button>
     </nav>
   );

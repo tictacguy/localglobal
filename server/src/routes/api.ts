@@ -192,6 +192,32 @@ const createExpSchema = z.object({
   capacity: z.number().int().min(1).max(50).optional(),
 });
 
+// Host's own experiences (Local mode: "Le mie esperienze").
+apiRouter.get("/my-experiences", async (req: AuthedRequest, res) => {
+  const experiences = await prisma.experience.findMany({
+    where: { hostId: req.userId! },
+    include: { host: true, _count: { select: { bookings: true } } },
+    orderBy: { startAt: "asc" },
+  });
+  res.json({
+    experiences: experiences.map((e) => ({ ...experienceDto(e), bookingsCount: e._count.bookings })),
+  });
+});
+
+apiRouter.delete("/experiences/:id", async (req: AuthedRequest, res) => {
+  const exp = await prisma.experience.findUnique({ where: { id: req.params.id } });
+  if (!exp) {
+    res.status(404).json({ error: "Esperienza non trovata" });
+    return;
+  }
+  if (exp.hostId !== req.userId) {
+    res.status(403).json({ error: "Non autorizzato" });
+    return;
+  }
+  await prisma.experience.delete({ where: { id: req.params.id } });
+  res.json({ ok: true });
+});
+
 apiRouter.post("/experiences", async (req: AuthedRequest, res) => {
   const parsed = createExpSchema.safeParse(req.body);
   if (!parsed.success) {

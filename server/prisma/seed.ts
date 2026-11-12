@@ -50,11 +50,11 @@ async function main() {
       verified: true,
       documentStatus: "APPROVED",
       onboardingStep: 4,
-      rating: 4.8,
-      reviewsCount: 42,
-      countriesVisited: 12,
-      localsMet: 2,
-      passportLevel: 13,
+      rating: 0,
+      reviewsCount: 0,
+      countriesVisited: 0,
+      localsMet: 0,
+      passportLevel: 1,
     },
   });
 
@@ -215,55 +215,49 @@ async function main() {
     },
   });
 
-  // Alberto already met Marco & Cristian (localsMet = 2)
-  await prisma.swipe.create({ data: { swiperId: alberto.id, localId: marco.id, direction: "LIKE" } });
-  await prisma.swipe.create({ data: { swiperId: alberto.id, localId: cristian.id, direction: "LIKE" } });
-
-  // Booking with Nicola -> unlocked conversation (the sample chat).
-  await prisma.booking.create({
-    data: {
-      experienceId: bacaro.id,
-      touristId: alberto.id,
-      startAt: bacaro.startAt,
-      people: 2,
-      note: "La mia ragazza è vegana.",
-      status: "CONFIRMED",
-      paid: false,
-    },
-  });
-
-  const convo = await prisma.conversation.create({
-    data: { touristId: alberto.id, localId: nicola.id, unlocked: true },
-  });
-  const chat = [
-    { sender: alberto.id, body: "Lieto di conoscerti Cristian!" },
-    { sender: nicola.id, body: "Domani sera sarebbe ottimo!" },
-    { sender: alberto.id, body: "Perfetto, affare fatto." },
-    { sender: nicola.id, body: "Per quanto riguarda la cena volevo farti sapere che la mia ragazza è vegana..." },
+  // Extra locals so the match deck feels alive (sample content, not user history).
+  const extraLocals = [
+    { fn: "Luca", ln: "Moretti", g: "men" as const, n: 22, origin: "Torino, Italia", city: "Torino (TO)", prof: "Fotografo", rating: 4.5, rev: 210, interests: ["urbano", "paesaggio", "tramonto", "musei"], exp: { title: "Photo Walk al tramonto", city: "Torino", loc: "Monte dei Cappuccini", tags: ["urbano", "tramonto", "paesaggio"], price: 3500, img: IMG.museum } },
+    { fn: "Sofia", ln: "Esposito", g: "women" as const, n: 30, origin: "Napoli, Italia", city: "Napoli (NA)", prof: "Chef", rating: 4.9, rev: 980, interests: ["streetfood", "cucina", "mercato", "vino"], exp: { title: "Street Food Tour a Spaccanapoli", city: "Napoli", loc: "Spaccanapoli", tags: ["streetfood", "mercato"], price: 2800, img: IMG.streetfood } },
+    { fn: "Youssef", ln: "Amrani", g: "men" as const, n: 27, origin: "Marrakech, Marocco", city: "Milano (MI)", prof: "DJ", rating: 4.3, rev: 134, interests: ["clubbing", "rooftop", "elettronica", "aperitivo"], exp: { title: "Milano by Night: rooftop & club", city: "Milano", loc: "Navigli", tags: ["rooftop", "clubbing", "aperitivo"], price: 4500, img: IMG.rooftop } },
+    { fn: "Elena", ln: "Conti", g: "women" as const, n: 25, origin: "Firenze, Italia", city: "Firenze (FI)", prof: "Storica dell'arte", rating: 4.8, rev: 540, interests: ["musei", "monumenti", "unesco", "cultura"], exp: { title: "Firenze segreta: arte e storia", city: "Firenze", loc: "Oltrarno", tags: ["musei", "monumenti", "unesco"], price: 3200, img: IMG.gondola } },
   ];
-  let t = Date.now() - chat.length * 60000;
-  for (const m of chat) {
-    await prisma.message.create({
-      data: { conversationId: convo.id, senderId: m.sender, body: m.body, createdAt: new Date(t) },
+  let pcount = 20;
+  for (const L of extraLocals) {
+    const u = await prisma.user.create({
+      data: {
+        email: `${L.fn.toLowerCase()}@localglobal.it`,
+        passwordHash: hash,
+        firstName: L.fn,
+        lastName: L.ln,
+        gender: L.g === "men" ? "Uomo" : "Donna",
+        birthDate: new Date(Date.now() - L.n * 3.15576e10),
+        cityResidence: L.city,
+        origin: L.origin,
+        languages: ["Italiano", "Inglese"],
+        profession: L.prof,
+        avatarUrl: PORTRAIT(L.g, pcount++),
+        interests: L.interests,
+        isLocalEnabled: true,
+        activeMode: Mode.LOCAL,
+        verified: Math.random() > 0.5,
+        rating: L.rating,
+        reviewsCount: L.rev,
+      },
     });
-    t += 60000;
-  }
-
-  // Locked conversations from likes (paywall demo)
-  await prisma.conversation.create({ data: { touristId: alberto.id, localId: marco.id, unlocked: false } });
-
-  // Passport stamps (the "I miei Viaggi" grid)
-  const stamps = [
-    { country: "U.S.A", city: "New York", seed: "newyork" },
-    { country: "Germania", city: "Berlino", seed: "berlin" },
-    { country: "Olanda", city: "Amsterdam", seed: "amsterdam" },
-    { country: "Francia", city: "Parigi", seed: "paris" },
-    { country: "Russia", city: "Mosca", seed: "moscow" },
-    { country: "Svizzera", city: "Zurigo", seed: "zurich" },
-  ];
-  for (const s of stamps) {
-    await prisma.passportStamp.create({
-      data: { userId: alberto.id, country: s.country, city: s.city, imageUrl: STAMP(s.seed) },
+    await prisma.experience.create({
+      data: {
+        hostId: u.id,
+        title: L.exp.title,
+        city: L.exp.city,
+        location: L.exp.loc,
+        startAt: new Date(Date.now() + (3 + pcount) * 86400000),
+        priceCents: L.exp.price,
+        imageUrl: L.exp.img,
+        tags: L.exp.tags,
+        description: `Un'esperienza autentica con ${L.fn}, ${L.prof.toLowerCase()} del posto.`,
+        capacity: 8,
+      },
     });
   }
 

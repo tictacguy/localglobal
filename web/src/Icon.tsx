@@ -197,6 +197,55 @@ export function Icon({
         <path d="M12 7.5V12l3 2" />
       </>
     ),
+    compass: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M15.5 8.5l-2 5-5 2 2-5 5-2Z" fill="currentColor" stroke="none" />
+      </>
+    ),
+    sparkles: (
+      <>
+        <path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6L12 4Z" />
+        <path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" />
+      </>
+    ),
+    trophy: (
+      <>
+        <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+        <path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M9 20h6M12 13v4" />
+      </>
+    ),
+    plusCircle: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8v8M8 12h8" />
+      </>
+    ),
+    trash: (
+      <>
+        <path d="M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13" />
+      </>
+    ),
+    image: (
+      <>
+        <rect x="4" y="5" width="16" height="14" rx="3" />
+        <circle cx="9" cy="10" r="1.6" />
+        <path d="M5 17l4.5-4.5 4 4 2.5-2.5L20 17" />
+      </>
+    ),
+    globeLine: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M3.5 12h17M12 3.5c2.5 2.3 2.5 14.7 0 17M12 3.5c-2.5 2.3-2.5 14.7 0 17" />
+      </>
+    ),
+    accessibility: (
+      <>
+        <circle cx="12" cy="4.5" r="1.6" fill="currentColor" stroke="none" />
+        <path d="M4.5 8h15M12 8v6M12 14l-3 5.5M12 14l3 5.5" />
+      </>
+    ),
+    heartFill: <path d="M12 20s-7-4.6-7-9.6A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 7 3.4c0 5-7 9.6-7 9.6Z" fill="currentColor" stroke="none" />,
   };
   return (
     <svg {...common} xmlns="http://www.w3.org/2000/svg">
