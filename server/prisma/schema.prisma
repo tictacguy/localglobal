@@ -1,0 +1,152 @@
+// Local Global — data model
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Mode {
+  TOURIST
+  LOCAL
+}
+
+enum DocumentStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SwipeDirection {
+  LIKE
+  PASS
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  firstName        String
+  lastName         String
+  phone            String?
+  gender           String?
+  birthDate        DateTime?
+  cityResidence    String? // "Villorba, Treviso (TV)"
+  origin           String? // provenance / country
+  languages        String[] @default([])
+  profession       String?
+  bio              String?
+  avatarUrl        String?
+  interests        String[] @default([]) // interest keys
+  isLocalEnabled   Boolean  @default(false) // can act as a Local / host
+  activeMode       Mode     @default(TOURIST)
+  verified         Boolean  @default(false)
+  documentStatus   DocumentStatus @default(NONE)
+  onboardingStep   Int      @default(0) // 0..4 ; 4 = complete
+  rating           Float    @default(0)
+  reviewsCount     Int      @default(0)
+  countriesVisited Int      @default(0)
+  localsMet        Int      @default(0)
+  passportLevel    Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  experiences      Experience[]   @relation("Host")
+  bookingsAsTourist Booking[]     @relation("Tourist")
+  swipesGiven      Swipe[]        @relation("Swiper")
+  swipesReceived   Swipe[]        @relation("SwipedLocal")
+  convosAsTourist  Conversation[] @relation("ConvoTourist")
+  convosAsLocal    Conversation[] @relation("ConvoLocal")
+  messages         Message[]
+  stamps           PassportStamp[]
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  hostId      String
+  host        User     @relation("Host", fields: [hostId], references: [id], onDelete: Cascade)
+  title       String
+  city        String
+  location    String
+  startAt     DateTime
+  priceCents  Int      @default(0)
+  imageUrl    String
+  tags        String[] @default([])
+  description String   @default("")
+  capacity    Int      @default(6)
+  lovedByTourists Boolean @default(true)
+  createdAt   DateTime @default(now())
+
+  bookings    Booking[]
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  experienceId String
+  experience   Experience    @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  touristId    String
+  tourist      User          @relation("Tourist", fields: [touristId], references: [id], onDelete: Cascade)
+  startAt      DateTime
+  people       Int           @default(1)
+  note         String        @default("")
+  status       BookingStatus @default(CONFIRMED)
+  paid         Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+}
+
+model Swipe {
+  id        String         @id @default(cuid())
+  swiperId  String
+  swiper    User           @relation("Swiper", fields: [swiperId], references: [id], onDelete: Cascade)
+  localId   String
+  local     User           @relation("SwipedLocal", fields: [localId], references: [id], onDelete: Cascade)
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  @@unique([swiperId, localId])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  touristId String
+  tourist   User      @relation("ConvoTourist", fields: [touristId], references: [id], onDelete: Cascade)
+  localId   String
+  local     User      @relation("ConvoLocal", fields: [localId], references: [id], onDelete: Cascade)
+  unlocked  Boolean   @default(false) // paywall: unlocked after a booking
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  @@unique([touristId, localId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime     @default(now())
+  readAt         DateTime?
+}
+
+model PassportStamp {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  country  String
+  city     String
+  imageUrl String
+  visitedAt DateTime @default(now())
+}

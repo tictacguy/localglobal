@@ -1,0 +1,74 @@
+name: localglobal
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: localglobal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: localglobal
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localglobal -d localglobal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lg
+
+  api:
+    build: ./server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      DATABASE_URL: postgresql://localglobal:${POSTGRES_PASSWORD}@db:5432/localglobal
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGINS: ${PUBLIC_ORIGIN}
+      PUBLIC_BASE_URL: ${PUBLIC_ORIGIN}
+      SEED_DEMO_PASSWORD: ${SEED_DEMO_PASSWORD}
+    # Exotic host port, bound to localhost only (Caddy reaches it over the internal network).
+    ports:
+      - "127.0.0.1:47891:8080"
+    networks:
+      - lg
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:47880:80"
+    networks:
+      - lg
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - lg
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  lg:
+    driver: bridge

@@ -1,0 +1,35 @@
+# Local Global — automatic HTTPS via Let's Encrypt.
+# DNS for localglobal.it must point to this server (A/AAAA record) and ports
+# 80 + 443 must be reachable for the ACME challenge.
+
+{
+	# Uncomment and set a real mailbox to receive certificate-expiry notices:
+	# email admin@localglobal.it
+}
+
+localglobal.it {
+	encode zstd gzip
+
+	# API traffic goes to the Node backend.
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	# Everything else is the static SPA (served by nginx).
+	handle {
+		reverse_proxy web:80
+	}
+
+	header {
+		# Harden the public surface.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
+
+# If/when www is pointed at this server via DNS, uncomment to redirect it:
+# www.localglobal.it {
+# 	redir https://localglobal.it{uri}
+# }
